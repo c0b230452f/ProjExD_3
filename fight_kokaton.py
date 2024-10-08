@@ -172,7 +172,8 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
-    beam = None  # beamの値を初期化しておく
+    # beam = None  # beamの値を初期化しておく
+    beams = []
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((225, 0 , 0), 10) for _ in range(NUM_OF_BOMBS)]
     # ↑ for文の変数(iやjなど)を使う必要が無い場合は, _ を使うのが一般的
@@ -185,7 +186,7 @@ def main():
                 return                 # ゲームが終了する
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+                beams.append(Beam(bird))
         screen.blit(bg_img, [0, 0])
         
         # if bomb != None:  # bombが存在するとき   <--- 不要になる
@@ -204,22 +205,29 @@ def main():
         
         # if beam != None and bomb != None:  # それぞれのインスタンスが存在するとき
         for j, bomb in enumerate(bombs):
-            if beam != None:
-                if beam.rct.colliderect(bomb.rct):
-                    # ビームと爆弾が衝突したら、両方を消滅させる
-                    beam, bombs[j] = None, None  # リストbombsのｊ番目をNoneにする
-                    bird.change_img(6, screen)
-                    score.update(screen, 1)
-                    pg.display.update()
-                    # time.sleep(1)
+            # if beam != None:
+            if len(beams) != 0:  # ビームが存在すれば
+                for i, beam in enumerate(beams):
+                    if beam.rct.colliderect(bomb.rct):
+                        # ビームと爆弾が衝突したら、両方を消滅させる
+                        beams[i], bombs[j] = None, None
+                        bird.change_img(6, screen)
+                        score.update(screen, 1)
+                        pg.display.update()
+                        # time.sleep(1)
         bombs = [bomb for bomb in bombs if bomb is not None]
-        #  ↑ Noneでないbombだけを要素に残すリスト更新を行う
+        beams = [beam for beam in beams if beam is not None]
+        #  ↑ Noneでない要素だけを残す
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)  # birdの更新
         score.update(screen, 0)  # scoreの更新
-        if beam != None:
-            beam.update(screen)  # beamの更新
+        # if beam != None:
+        for i, beam in enumerate(beams):
+            if check_bound(beam.rct) != (True, True):
+                del beams[i]
+            else:
+                beam.update(screen)  # beamの更新
         # if bomb != None:  <--- 不要になる
         for bomb in bombs:
             bomb.update(screen)  # bombの更新
