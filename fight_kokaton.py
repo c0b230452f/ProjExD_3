@@ -167,8 +167,13 @@ def main():
             if bird.rct.colliderect(bomb.rct):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
+                # 簡易ゲームオーバー画面を表ぞ
+                fonto = pg.font.Font(None, 80)
+                txt = fonto.render("Game Over", True, (255, 0, 0))
+                screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
+                # 画面描画を更新、一時停止させてゲーム終了
                 pg.display.update()
-                time.sleep(1)
+                time.sleep(5)
                 return
         
         # if beam != None and bomb != None:  # それぞれのインスタンスが存在するとき
