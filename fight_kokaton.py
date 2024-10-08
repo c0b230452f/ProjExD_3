@@ -142,6 +142,31 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Score:
+    """
+    スコア表示に関するクラス
+    """
+    def __init__(self):
+        """
+        画面左下に爆弾を撃ち落とした数（＝スコア）を表示する
+        引数：なし
+        """
+        self.score = 0
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.img = self.fonto.render(f"スコア：{self.score}", 0, (0, 0, 255))
+        self.rct = self.img.get_rect()
+        self.rct.center = 100, HEIGHT-50
+    
+    def update(self, screen: pg.Surface, score: int):
+        """
+        現在のスコアを表示させるメソッド
+        引数 screen：画面Surface
+        """
+        self.score += score  # 呼び出されるたびにカウントアップする
+        self.img = self.fonto.render(f"スコア：{self.score}", 0, (0, 0, 255))
+        screen.blit(self.img, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -151,6 +176,7 @@ def main():
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((225, 0 , 0), 10) for _ in range(NUM_OF_BOMBS)]
     # ↑ for文の変数(iやjなど)を使う必要が無い場合は, _ を使うのが一般的
+    score = Score()  # スコア表示オブジェクト
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -167,7 +193,7 @@ def main():
             if bird.rct.colliderect(bomb.rct):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
-                # 簡易ゲームオーバー画面を表ぞ
+                # 簡易ゲームオーバー画面を表示
                 fonto = pg.font.Font(None, 80)
                 txt = fonto.render("Game Over", True, (255, 0, 0))
                 screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
@@ -183,6 +209,7 @@ def main():
                     # ビームと爆弾が衝突したら、両方を消滅させる
                     beam, bombs[j] = None, None  # リストbombsのｊ番目をNoneにする
                     bird.change_img(6, screen)
+                    score.update(screen, 1)
                     pg.display.update()
                     # time.sleep(1)
         bombs = [bomb for bomb in bombs if bomb is not None]
@@ -190,6 +217,7 @@ def main():
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)  # birdの更新
+        score.update(screen, 0)  # scoreの更新
         if beam != None:
             beam.update(screen)  # beamの更新
         # if bomb != None:  <--- 不要になる
