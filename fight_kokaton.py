@@ -167,6 +167,37 @@ class Score:
         screen.blit(self.img, self.rct)
 
 
+class Explosion:
+    """
+    爆発エフェクトを描画するためのクラス
+    """
+    def __init__(self, bomb: Bomb):
+        """
+        爆弾が爆発したときにエフェクトを表示する
+        引数：Bombオブジェクト
+        """
+        img0 = pg.image.load("fig/explosion.gif")
+        img1 = pg.transform.flip(img0, True, True)
+        self.imgs = [img0, img1]  # 2つのエフェクト画像のリスト
+        # 座標を爆弾の中心に設定
+        for i in self.imgs:
+            self.rct = i.get_rect()
+            self.rct.center = bomb.rct.center
+        # 表示時間
+        self.life = 2
+    
+    def update(self, screen: pg.Surface):
+        """
+        爆発演出を表示するためのメソッド
+        引数 screen：画面Surface
+        """
+        self.life -= 1
+        if self.life >= 0:
+            while True:
+                for i in self.imgs:
+                    screen.blit(i, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -176,6 +207,8 @@ def main():
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((225, 0 , 0), 10) for _ in range(NUM_OF_BOMBS)]
     # ↑ for文の変数(iやjなど)を使う必要が無い場合は, _ を使うのが一般的
+    effs = []
+    # ↑ 爆発エフェクト用リスト
     score = Score()  # スコア表示オブジェクト
     clock = pg.time.Clock()
     tmr = 0
@@ -206,6 +239,8 @@ def main():
         for j, bomb in enumerate(bombs):
             if beam != None:
                 if beam.rct.colliderect(bomb.rct):
+                    # explosionインスタンスを生成
+                    effs.append(Explosion(bomb))
                     # ビームと爆弾が衝突したら、両方を消滅させる
                     beam, bombs[j] = None, None  # リストbombsのｊ番目をNoneにする
                     bird.change_img(6, screen)
@@ -213,7 +248,10 @@ def main():
                     pg.display.update()
                     # time.sleep(1)
         bombs = [bomb for bomb in bombs if bomb is not None]
-        #  ↑ Noneでないbombだけを要素に残すリスト更新を行う
+        # ↑ Noneでないbombだけを要素に残すリスト更新を行う
+        if effs != []:
+            effs = [eff for eff in effs if eff.life > 0]
+            # ↑ life属性が０より大きいものだけにする
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)  # birdの更新
@@ -223,6 +261,9 @@ def main():
         # if bomb != None:  <--- 不要になる
         for bomb in bombs:
             bomb.update(screen)  # bombの更新
+        if effs != []:
+            for eff in effs:
+                eff.update(screen)  # effの更新
         pg.display.update()  # 画面描画の更新
         tmr += 1
         clock.tick(50)
