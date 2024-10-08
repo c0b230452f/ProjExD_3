@@ -173,6 +173,7 @@ def main():
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
     # beam = None  # beamの値を初期化しておく
+    b = None  # beamsリストに追加するBeamインスタンスを代入する変数
     beams = []
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((225, 0 , 0), 10) for _ in range(NUM_OF_BOMBS)]
@@ -186,7 +187,8 @@ def main():
                 return                 # ゲームが終了する
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beams.append(Beam(bird))
+                b = Beam(bird)
+                beams.append(b)
         screen.blit(bg_img, [0, 0])
         
         # if bomb != None:  # bombが存在するとき   <--- 不要になる
@@ -203,12 +205,10 @@ def main():
                 time.sleep(5)
                 return
         
-        # if beam != None and bomb != None:  # それぞれのインスタンスが存在するとき
-        for j, bomb in enumerate(bombs):
-            # if beam != None:
-            if len(beams) != 0:  # ビームが存在すれば
+        for j, bomb in enumerate(bombs):  # 各爆弾において
+            if len(beams) != 0:  # ビームが存在するとき
                 for i, beam in enumerate(beams):
-                    if beam.rct.colliderect(bomb.rct):
+                    if beam != None and beam.rct.colliderect(bomb.rct):
                         # ビームと爆弾が衝突したら、両方を消滅させる
                         beams[i], bombs[j] = None, None
                         bird.change_img(6, screen)
