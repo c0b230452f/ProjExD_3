@@ -151,11 +151,11 @@ class Score:
         画面左下に爆弾を撃ち落とした数（＝スコア）を表示する
         引数：なし
         """
-        self.score = 0
-        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
-        self.img = self.fonto.render(f"スコア：{self.score}", 0, (0, 0, 255))
+        self.score = 0  # スコアの初期値を設定
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)  # フォント設定
+        self.img = self.fonto.render(f"スコア：{self.score}", 0, (0, 0, 255))  # テキストSurfaceを生成
         self.rct = self.img.get_rect()
-        self.rct.center = 100, HEIGHT-50
+        self.rct.center = 100, HEIGHT-50  # 座標を設定（x=100, y は下から50）
     
     def update(self, screen: pg.Surface, score: int):
         """
